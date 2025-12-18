@@ -300,6 +300,8 @@ QR/GPS 출석
 
 알림 시스템
 
+##추가 상세 내용
+
 📌 Ⅰ. 기획 및 요구사항 정의 단계 (Business & Requirement Planning)
 ■ 1. 목표 정의
 
