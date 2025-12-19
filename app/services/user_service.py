@@ -1,27 +1,14 @@
 from ..models import user as user_model
-
-# This is a placeholder for a database or other data source
-fake_users_db = {}
-user_id_counter = 0
+from ..repositories.user_repository import user_repository
 
 def get_user(user_id: int):
     """
-    Retrieves a user by their ID.
-    (Placeholder implementation)
+    Retrieves a user by their ID using the repository.
     """
-    return fake_users_db.get(user_id)
+    return user_repository.get(obj_id=user_id)
 
 def create_user(user: user_model.UserCreate):
     """
-    Creates a new user.
-    (Placeholder implementation)
+    Creates a new user using the repository.
     """
-    global user_id_counter
-    user_id_counter += 1
-    new_user = user_model.User(
-        id=user_id_counter,
-        email=user.email,
-        username=user.username
-    )
-    fake_users_db[new_user.id] = new_user
-    return new_user
+    return user_repository.create(obj_in=user)
