@@ -1,14 +1,17 @@
-from ..models import user as user_model
-from ..repositories.user_repository import user_repository
+from sqlalchemy.orm import Session
+from ..models.pydantic import user as pydantic_user
+from ..repositories.user_repository import UserRepository
 
-def get_user(user_id: int):
+def get_user(db: Session, user_id: int):
     """
     Retrieves a user by their ID using the repository.
     """
-    return user_repository.get(obj_id=user_id)
+    repo = UserRepository()
+    return repo.get_user(db=db, user_id=user_id)
 
-def create_user(user: user_model.UserCreate):
+def create_user(db: Session, user: pydantic_user.UserCreate):
     """
     Creates a new user using the repository.
     """
-    return user_repository.create(obj_in=user)
+    repo = UserRepository()
+    return repo.create_user(db=db, user=user)

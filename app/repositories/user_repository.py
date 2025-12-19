@@ -1,27 +1,22 @@
-from typing import List, Optional
-from .base import BaseRepository
-from ..models import user as user_model
+from sqlalchemy.orm import Session
+from app.models.orm import user as orm_user
+from app.models.pydantic import user as pydantic_user
+from passlib.context import CryptContext
 
-class UserRepository(BaseRepository[user_model.User, user_model.UserCreate]):
-    def __init__(self):
-        self._users = {}
-        self._id_counter = 0
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    def get(self, obj_id: int) -> Optional[user_model.User]:
-        return self._users.get(obj_id)
+class UserRepository:
+    def get_user(self, db: Session, user_id: int):
+        return db.query(orm_user.User).filter(orm_user.User.id == user_id).first()
 
-    def list(self) -> List[user_model.User]:
-        return list(self._users.values())
-
-    def create(self, obj_in: user_model.UserCreate) -> user_model.User:
-        self._id_counter += 1
-        new_user = user_model.User(
-            id=self._id_counter,
-            email=obj_in.email,
-            username=obj_in.username
+    def create_user(self, db: Session, user: pydantic_user.UserCreate):
+        hashed_password = pwd_context.hash(user.password)
+        db_user = orm_user.User(
+            email=user.email, 
+            username=user.username, 
+            hashed_password=hashed_password
         )
-        self._users[new_user.id] = new_user
-        return new_user
-
-# Create a single instance to act as our "database"
-user_repository = UserRepository()
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
