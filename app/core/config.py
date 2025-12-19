@@ -1,3 +1,4 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -5,7 +6,6 @@ class Settings(BaseSettings):
     # The format is: "postgresql://username:password@host:port/database_name"
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/app"
 
-    class Config:
-        case_sensitive = True
+    model_config = ConfigDict(case_sensitive=True)
 
 settings = Settings()
