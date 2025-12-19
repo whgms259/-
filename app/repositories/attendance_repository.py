@@ -11,7 +11,7 @@ class AttendanceRepository:
         return db.query(orm_attendance.Attendance).filter(orm_attendance.Attendance.user_id == user_id).all()
 
     def create_attendance(self, db: Session, attendance: pydantic_attendance.AttendanceCreate) -> orm_attendance.Attendance:
-        db_attendance = orm_attendance.Attendance(**attendance.dict())
+        db_attendance = orm_attendance.Attendance(**attendance.model_dump())
         db.add(db_attendance)
         db.commit()
         db.refresh(db_attendance)
