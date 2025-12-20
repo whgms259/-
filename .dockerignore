@@ -1,0 +1,30 @@
+# Ignore .git directory
+.git
+.gitignore
+
+# Ignore Python cache and virtual environment
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# Ignore IDE-specific files
+.idea
+*.iml
+.vscode
+
+# Ignore environment variables and local development files
+.env
+*.env
+*.bak
+*.swp
+
+# Ignore test-related files
+.pytest_cache
+test.db
+
+# Ignore E2E and load test related files
+e2e_tests/
+locust_tests/
