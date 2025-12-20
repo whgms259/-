@@ -2,11 +2,11 @@ fastapi
 uvicorn[standard]
 pydantic[email]
 pydantic-settings
-passlib[bcrypt]
-python-jose[cryptography]
 pytest
 pytest-fastapi
 httpx
 SQLAlchemy
 psycopg2-binary
 locust
+gunicorn
+prometheus_client

@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from typing import List
+from prometheus_client import generate_latest
 
 from .models.pydantic import user as pydantic_user_model
 from .models.pydantic import attendance as pydantic_attendance_model
@@ -22,6 +23,10 @@ def get_db():
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+@app.get("/metrics")
+def get_metrics():
+    return Response(content=generate_latest().decode("utf-8"), media_type="text/plain")
 
 @app.post("/users/", response_model=pydantic_user_model.User)
 def create_user_api(user: pydantic_user_model.UserCreate, db: Session = Depends(get_db)):

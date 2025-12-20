@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - monitoring
 
   web:
     build: .
@@ -28,6 +30,53 @@ services:
       db:
         condition: service_healthy
     restart: on-failure
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      web:
+        condition: service_healthy # Assuming web service exposes /metrics endpoint
+      db:
+        condition: service_healthy
+    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver --storage.tsdb.path=/prometheus
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:10.1.5
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    env_file:
+      - .env
+    networks:
+      - monitoring
+
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    ports:
+      - "9100:9100"
+    command: --path.root=/host
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - monitoring
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  monitoring:
+    driver: bridge
