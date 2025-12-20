@@ -11,3 +11,4 @@ locust
 gunicorn
 prometheus_client
 python-logstash
+cryptography
