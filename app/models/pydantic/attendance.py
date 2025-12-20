@@ -12,5 +12,4 @@ class AttendanceCreate(AttendanceBase):
 
 class Attendance(AttendanceBase):
     id: int
-    user_id: int # Add user_id to the response model
     model_config = ConfigDict(from_attributes=True)

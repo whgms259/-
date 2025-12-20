@@ -10,8 +10,10 @@ class AttendanceRepository:
     def get_attendances_by_user(self, db: Session, user_id: int) -> List[orm_attendance.Attendance]:
         return db.query(orm_attendance).filter(orm_attendance.user_id == user_id).all()
 
-    def create_attendance(self, db: Session, attendance: pydantic_attendance.AttendanceCreate) -> orm_attendance.Attendance:
-        db_attendance = orm_attendance(**attendance.model_dump())
+    def create_attendance(self, db: Session, attendance: pydantic_attendance.AttendanceCreate, user_id: int) -> orm_attendance.Attendance:
+        attendance_data = attendance.model_dump()
+        attendance_data["user_id"] = user_id
+        db_attendance = orm_attendance(**attendance_data)
         db.add(db_attendance)
         db.commit()
         db.refresh(db_attendance)

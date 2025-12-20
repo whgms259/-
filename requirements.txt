@@ -12,3 +12,4 @@ gunicorn
 prometheus_client
 python-logstash
 cryptography
+scikit-learn

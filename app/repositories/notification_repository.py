@@ -5,8 +5,8 @@ from app.models.pydantic.notification import NotificationCreate, NotificationUpd
 
 
 class NotificationRepository:
-    def create(self, db: Session, *, obj_in: NotificationCreate) -> Notification:
-        db_obj = Notification(**obj_in.model_dump())
+    def create(self, db: Session, *, obj_in: dict) -> Notification:
+        db_obj = Notification(**obj_in)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

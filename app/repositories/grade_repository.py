@@ -5,8 +5,8 @@ from app.models.pydantic.grade import GradeCreate
 
 
 class GradeRepository:
-    def create(self, db: Session, *, obj_in: GradeCreate) -> Grade:
-        db_obj = Grade(**obj_in.model_dump())
+    def create(self, db: Session, *, obj_in: dict) -> Grade:
+        db_obj = Grade(**obj_in)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
