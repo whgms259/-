@@ -78,6 +78,7 @@ services:
     image: elastic/elasticsearch:8.11.3
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/ilm_policy.json:/usr/share/elasticsearch/config/ilm_policy.json # Mount ILM policy
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -91,6 +92,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    command: >
+      bash -c '
+        echo "Waiting for Elasticsearch to be ready...";
+        until curl -s http://elasticsearch:9200/_cluster/health?wait_for_status=green -o /dev/null; do
+          sleep 5;
+        done;
+        echo "Elasticsearch is ready. Registering ILM policy...";
+        curl -X PUT "http://elasticsearch:9200/_ilm/policy/fastapi-log-policy" -H "Content-Type: application/json" -d @/usr/share/elasticsearch/config/ilm_policy.json;
+        echo "ILM policy registered. Starting Elasticsearch...";
+        exec /usr/local/bin/docker-entrypoint.sh elasticsearch;
+      '
 
   logstash:
     image: elastic/logstash:8.11.3
