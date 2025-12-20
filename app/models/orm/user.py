@@ -11,3 +11,4 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
     attendances = relationship("Attendance", back_populates="owner")
+    grades = relationship("Grade", back_populates="user")
