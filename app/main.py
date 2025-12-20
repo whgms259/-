@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from typing import List
 from prometheus_client import generate_latest
+import logging
+import logstash
 
 from .models.pydantic import user as pydantic_user_model
 from .models.pydantic import attendance as pydantic_attendance_model
@@ -9,6 +11,18 @@ from .models.pydantic import grade as pydantic_grade_model
 from .models.pydantic import notification as pydantic_notification_model
 from .services import user_service, attendance_service, grade_service, notification_service
 from .db.session import SessionLocal
+from .core.config import settings # Import settings to get Logstash host/port
+
+# Configure logging
+host = settings.LOGSTASH_HOST
+port = settings.LOGSTASH_PORT
+
+# Create a logger
+logger = logging.getLogger('fastapi-app')
+logger.setLevel(logging.INFO)
+
+# Add the Logstash handler
+logger.addHandler(logstash.TCPLogstashHandler(host, port, version=1))
 
 app = FastAPI()
 
@@ -22,6 +36,7 @@ def get_db():
 
 @app.get("/")
 def read_root():
+    logger.info("Root endpoint accessed.")
     return {"Hello": "World"}
 
 @app.get("/metrics")

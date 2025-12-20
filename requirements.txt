@@ -10,3 +10,4 @@ psycopg2-binary
 locust
 gunicorn
 prometheus_client
+python-logstash

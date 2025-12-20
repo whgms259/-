@@ -16,6 +16,7 @@ services:
       retries: 5
     networks:
       - monitoring
+      - logging
 
   web:
     build: .
@@ -32,6 +33,7 @@ services:
     restart: on-failure
     networks:
       - monitoring
+      - logging # Add web service to logging network
 
   prometheus:
     image: prom/prometheus:v2.47.0
@@ -42,7 +44,7 @@ services:
       - "9090:9090"
     depends_on:
       web:
-        condition: service_healthy # Assuming web service exposes /metrics endpoint
+        condition: service_healthy
       db:
         condition: service_healthy
     command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver --storage.tsdb.path=/prometheus
@@ -71,12 +73,59 @@ services:
       - /:/host:ro,rslave
     networks:
       - monitoring
+  
+  elasticsearch:
+    image: elastic/elasticsearch:8.11.3
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # Disable security for local development
+    networks:
+      - logging
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  logstash:
+    image: elastic/logstash:8.11.3
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline/
+    ports:
+      - "5000:5000" # For receiving logs from FastAPI
+    environment:
+      - LS_JAVA_OPTS=-Xmx256m -Xms256m
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - logging
+
+  kibana:
+    image: elastic/kibana:8.11.3
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - logging
 
 volumes:
   postgres_data:
   prometheus_data:
   grafana_data:
+  elasticsearch_data:
 
 networks:
   monitoring:
+    driver: bridge
+  logging:
     driver: bridge
