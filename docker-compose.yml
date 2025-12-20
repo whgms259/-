@@ -118,11 +118,27 @@ services:
     networks:
       - logging
 
+  backup:
+    image: alpine/git # A small image with bash and git
+    volumes:
+      - ./scripts:/scripts
+      - backup_data:/app/backups # Persistent volume for backups
+      - ./.env:/app/.env # Mount .env for DB credentials
+    command: /bin/sh -c "while :; do /scripts/backup.sh; sleep 86400; done" # Run daily (86400 seconds = 24 hours)
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - logging # Backup service needs to connect to the db service
+
 volumes:
   postgres_data:
   prometheus_data:
   grafana_data:
   elasticsearch_data:
+  backup_data: # New volume for backups
 
 networks:
   monitoring:
