@@ -6,6 +6,6 @@ class Settings(BaseSettings):
     # The format is: "postgresql://username:password@localhost:5432/app"
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/app"
 
-    model_config = ConfigDict(case_sensitive=True)
+    model_config = ConfigDict(case_sensitive=True, extra="ignore", env_file=".env")
 
 settings = Settings()
