@@ -10,7 +10,7 @@ class NotificationService:
     def __init__(self):
         self.repo = NotificationRepository()
 
-    async def create_notification(self, db: Session, *, notification: NotificationCreate, user_id: int) -> orm_notification.Notification:
+    async def create_notification(self, db: Session, *, notification: NotificationCreate, user_id: int) -> orm_notification:
         notification_data = notification.model_dump()
         notification_data["user_id"] = user_id
         created_notification = self.repo.create(db=db, obj_in=notification_data)
@@ -29,10 +29,10 @@ class NotificationService:
         
         return created_notification
 
-    def get_notifications_by_user(self, db: Session, *, user_id: int) -> List[orm_notification.Notification]:
+    def get_notifications_by_user(self, db: Session, *, user_id: int) -> List[orm_notification]:
         return self.repo.get_by_user_id(db=db, user_id=user_id)
 
-    def mark_as_read(self, db: Session, *, notification_id: int) -> Optional[orm_notification.Notification]:
+    def mark_as_read(self, db: Session, *, notification_id: int) -> Optional[orm_notification]:
         notification = self.repo.get(db=db, id=notification_id)
         if not notification:
             return None

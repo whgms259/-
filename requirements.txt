@@ -3,7 +3,9 @@ uvicorn[standard]
 passlib
 pydantic[email]
 pydantic-settings
+python-multipart
 pytest
+pytest-asyncio
 pytest-fastapi
 httpx
 SQLAlchemy
