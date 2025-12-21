@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Optional
 
 class AttendanceBase(BaseModel):
-    user_id: int
     check_in_time: datetime
     check_out_time: Optional[datetime] = None
 
@@ -12,4 +11,5 @@ class AttendanceCreate(AttendanceBase):
 
 class Attendance(AttendanceBase):
     id: int
+    user_id: int
     model_config = ConfigDict(from_attributes=True)

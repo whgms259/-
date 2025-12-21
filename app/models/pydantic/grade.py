@@ -7,7 +7,7 @@ class GradeBase(BaseModel):
 
 
 class GradeCreate(GradeBase):
-    user_id: int
+    pass
 
 
 class Grade(GradeBase):

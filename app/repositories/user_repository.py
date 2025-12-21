@@ -14,13 +14,8 @@ class UserRepository:
     def get_user_by_username(self, db: Session, username: str) -> Optional[ORMUser]:
         return db.query(ORMUser).filter(ORMUser.username == username).first()
 
-    def create_user(self, db: Session, user: pydantic_user.UserCreate) -> ORMUser:
-        hashed_password = security.get_password_hash(user.password)
-        db_user = ORMUser(
-            email=user.email,
-            username=user.username,
-            hashed_password=hashed_password
-        )
+    def create_user(self, db: Session, user_data: dict) -> ORMUser:
+        db_user = ORMUser(**user_data)
         db.add(db_user)
         db.commit()
         db.refresh(db_user)

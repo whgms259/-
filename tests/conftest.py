@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app, get_db
 from app.db.base import Base
+from app.core.config import settings # Import settings
 
 # Use an in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -24,8 +25,11 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def client():
+    # Set a consistent SECRET_KEY for testing
+    settings.SECRET_KEY = "test-secret-key-for-testing"
+    
     # Before tests run, create the tables
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as c:

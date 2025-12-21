@@ -14,9 +14,9 @@ def test_create_user(client: TestClient):
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["email"] == test_email
-    assert data["username"] == test_username
-    assert "id" in data
+    assert data["id"] is not None
+    assert len(data["email"]) == 64  # SHA256 hash length
+    assert len(data["username"]) == 64  # SHA256 hash length
 
 def test_login_for_access_token(client: TestClient):
     """
