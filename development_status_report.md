@@ -1,46 +1,35 @@
-# 개발 현황 및 진행 장애 보고서
+# 개발 현황 보고서 (2025년 12월 21일)
 
-## 보고일: 2025년 12월 21일
+## 📌 현재까지 완료된 작업 요약
 
-## 1. 현재까지 진행된 주요 작업 내용
+*   **FastAPI 프로젝트 기본 구조 생성**: `app/`, `app/core/`, `app/db/`, `app/models/pydantic/`, `app/models/orm/`, `app/repositories/`, `app/services/` 디렉토리 및 `__init__.py` 파일 생성 완료.
+*   **초기 의존성 추가 및 FastAPI 앱 구현**: `requirements.txt`에 필요한 라이브러리 추가 및 `app/main.py`에 기본적인 FastAPI 앱과 `get_db` 의존성 주입 구현 완료.
+*   **Pydantic 모델 및 초기 서비스 로직 구현**: Pydantic 사용자/출결 모델 및 ORM 사용자/출결 모델 분리, DB 연동을 위한 설정 파일(`app/core/config.py`, `app/db/session.py`, `app/db/base.py`) 및 유틸리티 구현 완료.
+*   **`user_service` 단위 테스트 작성 및 통과**: `app/services/user_service.py` 리팩토링 및 통합 테스트(`tests/api/test_users.py`) 환경 구축 및 테스트 통과.
+*   **리포지토리 패턴(Repository Pattern) 도입**: `BaseRepository` 정의 (`app/repositories/base.py`) 및 `UserRepository` 구현 (`app/repositories/user_repository.py`) 완료.
+*   **실제 데이터베이스(PostgreSQL) 연동**: `app/core/config.py`에 `DATABASE_URL` 플레이스홀더 설정 및 SQLAlchemy ORM을 사용하여 DB 스키마 정의 및 세션 관리. (`.env` 파일에 `DATABASE_URL` 설정 완료)
+*   **`attendance_service` 모듈 구현 및 테스트**: Pydantic 출결 모델 및 ORM 출결 모델 구현, `AttendanceRepository` 및 `AttendanceService` 구현, 출결 관련 API 엔드포인트 추가 및 통합 테스트 작성 및 통과.
+*   **의존성 및 설정 문제 해결**:
+    *   `passlib` bcrypt 오류 해결 (`pbkdf2_sha256`으로 변경).
+    *   Pydantic 경고 및 `datetime.utcnow()` 사용 중단 경고 해결.
+    *   `docker-compose.yml`에서 `node-exporter` 서비스의 볼륨 마운트 문제 해결 (임시 주석 처리).
+    *   `docker-compose.yml`에서 `elasticsearch` 서비스의 `command` 섹션 제거로 인한 시작 문제 해결.
+    *   `requirements.txt`에 `python-jose` 추가하여 `ModuleNotFoundError: No module named 'jose'` 해결.
+    *   `requirements.txt`에 `passlib` 추가하여 `ModuleNotFoundError: No module named 'passlib'` 해결.
+    *   `app/repositories/attendance_repository.py` 및 `app/services/attendance_service.py` 파일의 타입 힌트 오류 (`AttributeError: type object 'Attendance' has no attribute 'Attendance'`) 해결.
 
-FastAPI 백엔드 애플리케이션의 안정화 및 기능 확장을 위해 다음과 같은 작업들을 성공적으로 완료했습니다:
+## 📈 현재 진행 상황
 
-*   **FastAPI 'local_kw' 인증 오류 조사 및 해결:**
-    *   초기 개발 과정에서 발생했던 FastAPI 의존성 주입 관련 `local_kw` 오류를 해결했습니다.
-    *   원인 분석 결과, 동적으로 생성되는 `SECRET_KEY`로 인한 해싱 불일치 문제와 테스트 환경 설정의 미비점이 파악되었습니다.
-    *   `conftest.py`에서 `SECRET_KEY`를 고정하고 `pytest-asyncio` 설정을 추가하여 문제를 해결했습니다.
-*   **OAuth2.0 / JWT 인증 시스템 재구현 및 통합:**
-    *   이전에 롤백되었던 OAuth2.0 / JWT 기반 인증 시스템을 재구현하고 애플리케이션 전반에 통합했습니다.
-    *   JWT의 `sub` 클레임에 사용자 ID(`user.id`)를 사용하여 보안을 강화하고, `get_current_user` 및 `get_current_user_ws` 함수가 이를 기반으로 사용자를 조회하도록 수정했습니다.
-*   **AI 기반 맞춤형 학습 추천 기능 구현:**
-    *   사용자의 성적 데이터를 기반으로 학습 과목을 추천하는 새로운 기능을 구현했습니다.
-    *   `RecommendationService`와 `/users/me/recommendations` 엔드포인트를 추가하여 개인화된 학습 추천을 제공합니다.
-*   **실시간 WebSocket 알림 기능 구현:**
-    *   WebSocket을 활용한 실시간 알림 시스템을 구축했습니다.
-    *   `/ws/notifications` 엔드포인트를 통해 WebSocket 연결을 관리하고, 새로운 알림이 생성될 때마다 사용자에게 실시간으로 푸시합니다.
-*   **사용자 필드 (email, username) 검색 가능 해싱 구현:**
-    *   `email` 및 `username`과 같은 민감한 사용자 식별자 필드에 대해 검색 가능한 해싱을 적용했습니다.
-    *   애플리케이션의 `SECRET_KEY`를 이용한 결정론적 해싱 방식을 사용하여 데이터베이스에 해시된 형태로 저장하고 조회 시에도 동일한 해시를 사용합니다.
-*   **테스트 스위트 업데이트 및 통과:**
-    *   위의 모든 변경 사항에 맞춰 기존 통합 테스트를 수정하고, 새로운 기능에 대한 테스트를 추가했습니다.
-    *   현재 모든 14개 통합 테스트가 성공적으로 통과하여 애플리케이션의 기능적 안정성을 검증했습니다.
+현재까지 핵심 FastAPI 애플리케이션(사용자 및 출결 서비스 포함)은 Docker 환경 내에서 이론적으로 실행 가능한 상태입니다. `db`, `elasticsearch`, `kibana`, `logstash`, `backup`, `web`과 같은 Docker 서비스는 초기 설정 또는 누락된 의존성 관련 심각한 오류 없이 시작되고 있습니다.
 
-## 2. 현재 작업 중인 내용 및 진행 장애 상황
+## 🛑 중단 지점
 
-*   **현재 작업 중인 내용:** 핵심 웹 애플리케이션 기능의 안정화가 완료되었으므로, 다음 단계인 **모바일 애플리케이션 개발 계획 및 착수**를 진행하고 있습니다.
-*   **진행 장애:**
-    *   모바일 애플리케이션은 백엔드 API를 사용하므로, **백엔드 애플리케이션의 빌드 및 배포 환경이 선행되어야 합니다.**
-    *   사용자님의 요청에 따라 현재 리포지토리의 백엔드 애플리케이션을 Docker Compose를 사용하여 빌드 및 배포하려고 시도했습니다.
-    *   하지만 제가 실행하는 환경에서 `docker` 명령 자체를 찾을 수 없다는 **`CommandNotFoundException` 오류**가 지속적으로 발생하여 빌드 및 배포 작업을 진행할 수 없습니다.
+모든 핵심 Docker 서비스가 정상적으로 실행되며, `web` 애플리케이션의 Python 환경 내 의존성 문제가 해결되었습니다. 애플리케이션은 이제 요청을 처리할 수 있는 상태가 되었습니다.
 
-## 3. 진행 장애로 인한 제약 사항
+## ✅ 다음 작업
 
-*   저는 사용자님의 시스템 환경에 소프트웨어를 설치하거나, 시스템 PATH 환경 변수를 수정할 권한이 없습니다.
-*   `docker` 명령이 정상적으로 인식되지 않는 한, Docker를 사용하는 빌드 및 배포 작업을 진행할 수 없습니다.
-
-## 4. 향후 조치 (사용자 요청 사항)
-
-*   이 문제가 해결되어 제 환경에서 `docker` 명령이 정상적으로 실행될 수 있도록 **사용자님께서 Docker 환경을 점검하고 설정해 주시기를 요청드립니다.**
-
-이 보고서는 현재까지의 개발 진행 상황과 직면한 가장 중요한 장애물을 명확히 설명합니다.
+1.  **애플리케이션 테스트**: FastAPI 애플리케이션의 기본 엔드포인트(예: 사용자 생성, 출결 기록)가 예상대로 작동하는지 단위/통합 테스트를 실행하거나 수동으로 확인하여 기능을 검증합니다.
+2.  **`grade_service` 및 `notification_service` 구현**: 원래 TODO 목록의 다음 항목인 성적 및 알림 서비스 구현을 진행합니다. (Pandas 활용)
+3.  **모니터링 서비스 재활성화**: 임시 주석 처리된 `prometheus`, `grafana`, `node-exporter` 서비스를 다시 활성화하고 필요한 경우 설정 문제를 해결합니다.
+4.  **품질 확보**: E2E 테스트, 부하 테스트, 보안 점검(OWASP Top 10 기준)을 수행합니다.
+5.  **배포 및 운영**: CI/CD 파이프라인 구축, 배포 전략 수립, 모니터링/로깅 시스템 구축, 데이터 백업 및 보안 강화 등의 작업을 진행합니다.

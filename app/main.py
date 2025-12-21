@@ -67,8 +67,7 @@ def create_user_api(user: pydantic_user_model.UserCreate, db: Session = Depends(
 
 @app.get("/users/me/recommendations", response_model=List[pydantic_recommendation_model.Recommendation])
 def get_my_recommendations_api(db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):
-    service = recommendation_service.RecommendationService()
-    return service.get_recommendations_for_user(db=db, user_id=current_user.id)
+    return recommendation_service.get_recommendations_for_user(db=db, user_id=current_user.id)
 
 @app.post("/attendances/", response_model=pydantic_attendance_model.Attendance)
 def create_attendance_api(attendance: pydantic_attendance_model.AttendanceCreate, db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):
@@ -80,13 +79,18 @@ def get_my_attendances_api(db: Session = Depends(get_db), current_user: ORMUser 
 
 @app.post("/grades/", response_model=pydantic_grade_model.Grade)
 def create_grade_api(grade: pydantic_grade_model.GradeCreate, db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):
-    service = grade_service.GradeService()
-    return service.create_grade(db=db, grade=grade, user_id=current_user.id)
+    return grade_service.create_grade(db=db, grade=grade, user_id=current_user.id)
 
 @app.get("/grades/me", response_model=List[pydantic_grade_model.Grade])
 def get_my_grades_api(db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):
-    service = grade_service.GradeService()
-    return service.get_grades_by_user(db=db, user_id=current_user.id)
+    return grade_service.get_grades_by_user(db=db, user_id=current_user.id)
+
+@app.get("/grades/me/average", response_model=dict)
+def get_my_average_grades_api(db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):
+    average_grades = grade_service.get_average_grade_by_subject(db=db, user_id=current_user.id)
+    if not average_grades:
+        raise HTTPException(status_code=404, detail="No grades found for the user.")
+    return average_grades
 
 @app.get("/notifications/me", response_model=List[pydantic_notification_model.Notification])
 def get_my_notifications_api(db: Session = Depends(get_db), current_user: ORMUser = Depends(security.get_current_user)):

@@ -35,44 +35,44 @@ services:
       - monitoring
       - logging # Add web service to logging network
 
-  prometheus:
-    image: prom/prometheus:v2.47.0
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    depends_on:
-      web:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver --storage.tsdb.path=/prometheus
-    networks:
-      - monitoring
+  # prometheus:
+  #   image: prom/prometheus:v2.47.0
+  #   volumes:
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus_data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   depends_on:
+  #     web:
+  #       condition: service_healthy
+  #     db:
+  #       condition: service_healthy
+  #   command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver --storage.tsdb.path=/prometheus
+  #   networks:
+  #     - monitoring
 
-  grafana:
-    image: grafana/grafana:10.1.5
-    volumes:
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-    env_file:
-      - .env
-    networks:
-      - monitoring
+  # grafana:
+  #   image: grafana/grafana:10.1.5
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - prometheus
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - monitoring
 
-  node-exporter:
-    image: prom/node-exporter:v1.6.1
-    ports:
-      - "9100:9100"
-    command: --path.root=/host
-    volumes:
-      - /:/host:ro,rslave
-    networks:
-      - monitoring
+  # node-exporter:
+  #   image: prom/node-exporter:v1.6.1
+  #   ports:
+  #     - "9100:9100"
+  #   command: --path.root=/host
+  #   volumes:
+  #     - /:/host:ro,rslave
+  #   networks:
+  #     - monitoring
   
   elasticsearch:
     image: elastic/elasticsearch:8.11.3
@@ -92,17 +92,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    command: >
-      bash -c '
-        echo "Waiting for Elasticsearch to be ready...";
-        until curl -s http://elasticsearch:9200/_cluster/health?wait_for_status=green -o /dev/null; do
-          sleep 5;
-        done;
-        echo "Elasticsearch is ready. Registering ILM policy...";
-        curl -X PUT "http://elasticsearch:9200/_ilm/policy/fastapi-log-policy" -H "Content-Type: application/json" -d @/usr/share/elasticsearch/config/ilm_policy.json;
-        echo "ILM policy registered. Starting Elasticsearch...";
-        exec /usr/local/bin/docker-entrypoint.sh elasticsearch;
-      '
+
 
   logstash:
     image: elastic/logstash:8.11.3
