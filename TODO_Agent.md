@@ -33,7 +33,7 @@
 ### ☐ Ⅲ. 구현 및 품질 확보 단계
 
 - [ ] **1. 모듈 구현**
-    - [ ] `grade_service`: 성적 처리 관련 비즈니스 로직 구현 (Pandas 활용)
+    - [x] `grade_service`: 성적 처리 관련 비즈니스 로직 구현 (Pandas 활용)
     - [ ] `notification_service`: 알림 관련 비즈니스 로직 구현
 - [ ] **2. 데이터베이스 연동 구현**
     - [ ] Repository Layer 구현 (DB CRUD 캡슐화) - **(Agent가 User, Attendance 모듈에 대해 완료)**
