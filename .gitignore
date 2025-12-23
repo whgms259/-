@@ -25,3 +25,6 @@ venv/
 *.log
 *.tmp
 tmp/
+
+# Database files
+*.db

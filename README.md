@@ -1,3 +1,29 @@
+# 🚀 애플리케이션 실행 및 접근
+
+이 프로젝트를 실행하고 웹 프론트엔드에 접근하려면 다음 단계를 따르세요.
+
+## 1. 애플리케이션 실행
+
+Docker가 설치되어 있는지 확인한 후, 프로젝트의 루트 디렉터리에서 다음 명령어를 실행하여 모든 서비스를 시작합니다.
+
+```bash
+docker-compose up -d
+```
+
+## 2. 프론트엔드 접속
+
+애플리케이션이 성공적으로 시작되면, 아래 링크를 통해 웹 프론트엔드에 접속할 수 있습니다.
+
+- **[프론트엔드 접속하기](http://localhost:8000/frontend)**
+
+## 3. API 문서
+
+백엔드 API 문서는 다음 링크에서 확인할 수 있습니다.
+
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+---
 #우선적으로 챗 지피티에 저장한 내용/25.12.18-gemini_flash
 
 📌 1. 전체 아키텍처 개요 (System Architecture)

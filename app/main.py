@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Response, WebSocket, WebSocketDisconnect
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import timedelta
@@ -32,6 +34,14 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logstash.TCPLogstashHandler(host, port, version=1))
 
 app = FastAPI()
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/frontend", response_class=HTMLResponse, include_in_schema=False)
+async def read_frontend():
+    with open("app/static/index.html") as f:
+        return HTMLResponse(content=f.read(), status_code=200)
 
 @app.get("/")
 def read_root():
